@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sobral Online • O Portal da Zona Norte do Ceará</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              red: '#D90429',
+              crimson: '#E11D48',
+              darkRed: '#9B031D',
+              bg: '#0E0E11',
+              surface: '#16161A',
+              elevated: '#1E1E24',
+              border: '#2A2A34'
+            }
+          },
+          animation: {
+            'marquee': 'marquee 32s linear infinite',
+            'soundwave': 'soundwave 0.9s ease-in-out infinite alternate',
+          },
+          keyframes: {
+            marquee: {
+              '0%': { transform: 'translateX(0%)' },
+              '100%': { transform: 'translateX(-50%)' }
+            },
+            soundwave: {
+              '0%': { transform: 'scaleY(0.25)' },
+              '100%': { transform: 'scaleY(1)' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Variáveis adaptativas para Dark Editorial (Padrão) e Light Clean */
+    :root {
+      --bg-main: #F4F5F7;
+      --bg-surface: #FFFFFF;
+      --bg-elevated: #EDF0F5;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border-color: #E2E8F0;
+    }
+
+    html.dark {
+      --bg-main: #0E0E11;
+      --bg-surface: #16161A;
+      --bg-elevated: #1E1E24;
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+      --border-color: #2A2A34;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      -webkit-tap-highlight-color: transparent;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    .theme-surface {
+      background-color: var(--bg-surface);
+      border-color: var(--border-color);
+    }
+
+    .theme-elevated {
+      background-color: var(--bg-elevated);
+      border-color: var(--border-color);
+    }
+
+    .theme-text-muted {
+      color: var(--text-muted);
+    }
+
+    /* Scrollbar oculta para barras de categorias mobile */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Efeito de hover elegante nos cards de notícia */
+    .news-card {
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.2s ease;
+    }
+    .news-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(217, 4, 41, 0.5);
+    }
+
+    /* Barras de áudio IA */
+    .wave-bar {
+      transform-origin: bottom;
+    }
+  </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col selection:bg-brand-red selection:text-white pb-20 md:pb-0">
+
+  <!-- TOAST GLOBAL DE FEEDBACK -->
+  <div id="global-toast" class="fixed top-4 left-1/2 -translate-x-1/2 z-[100] pointer-events-none opacity-0 -translate-y-4 transition-all duration-300 w-[92%] max-w-md">
+    <div class="bg-zinc-900/95 backdrop-blur-md border border-red-500/40 text-white px-4 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3">
+      <div id="toast-icon-box" class="w-9 h-9 rounded-xl bg-brand-red/20 border border-brand-red/40 flex items-center justify-center shrink-0 text-red-400">
+        <i id="toast-icon" class="fa-solid fa-bolt text-sm"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p id="toast-title" class="text-[11px] font-display font-extrabold text-red-400 uppercase tracking-wider">Sobral Online</p>
+        <p id="toast-message" class="text-xs text-zinc-200 truncate">Ação realizada com sucesso.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1. TOP BAR: TICKER PLANTÃO 24H + AO VIVO -->
+  <div class="bg-[#09090B] text-white border-b border-white/10 text-xs relative z-40">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 h-9 flex items-center justify-between gap-3">
+      
+      <!-- Badge Plantão + Marquee -->
+      <div class="flex items-center gap-2.5 flex-1 min-w-0 overflow-hidden">
+        <span class="inline-flex items-center gap-1.5 bg-brand-red text-white text-[10px] font-display font-extrabold uppercase tracking-wider px-2.5 py-1 rounded shrink-0 shadow-sm">
+          <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+          PLANTÃO 24H
+        </span>
+
+        <!-- Marquee Deslizante -->
+        <div class="overflow-hidden whitespace-nowrap w-full relative">
+          <div class="inline-block animate-marquee hover:[animation-play-state:paused] cursor-pointer text-zinc-300 font-medium" onclick="openArticleModal(1)">
+            <span class="mx-3"><strong class="text-white">URGENTE:</strong> Diretor Gerald Thomas grava vídeo na UTI e tranquiliza fãs sobre internação</span>
+            <span class="text-red-500">•</span>
+            <span class="mx-3"><strong class="text-white">CEARÁ:</strong> Água mineral chega a Banabuiú sob escolta policial após ameaças</span>
+            <span class="text-red-500">•</span>
+            <span class="mx-3"><strong class="text-white">SOBRAL:</strong> 1ª Edição do Sobral Online Run está com inscrições abertas para atletas da Zona Norte</span>
+            <span class="text-red-500">•</span>
+            <span class="mx-3"><strong class="text-white">EMPREGOS:</strong> Confira a lista atualizada de vagas de emprego hoje em Sobral, Tianguá e Itapipoca</span>
+            <!-- Duplicado para loop contínuo -->
+            <span class="mx-3"><strong class="text-white">URGENTE:</strong> Diretor Gerald Thomas grava vídeo na UTI e tranquiliza fãs sobre internação</span>
+            <span class="text-red-500">•</span>
+            <span class="mx-3"><strong class="text-white">CEARÁ:</strong> Água mineral chega a Banabuiú sob escolta policial após ameaças</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Indicador AO VIVO e Clima -->
+      <div class="flex items-center gap-3 shrink-0">
+        <span class="hidden md:inline-flex items-center gap-1.5 text-zinc-400 text-[11px]">
+          <i class="fa-solid fa-sun text-amber-400"></i> Sobral, CE 33°C
+        </span>
+        <button onclick="openLiveModal()" class="inline-flex items-center gap-1.5 bg-red-950/90 hover:bg-red-900 border border-red-500/40 text-red-200 px-2.5 py-1 rounded-full text-[11px] font-display font-bold transition">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+          </span>
+          <span>AO VIVO</span>
+          <span class="hidden sm:inline">• Rádio/Live</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- HEADER FIXO INTELIGENTE -->
+  <header class="sticky top-0 z-30 theme-surface border-b backdrop-blur-xl bg-opacity-95 dark:bg-[#16161A]/95 shadow-sm">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6">
+      
+      <!-- Linha Principal do Header -->
+      <div class="h-16 flex items-center justify-between gap-3">
+        
+        <!-- Logo Oficial Sobral Online -->
+        <a href="#" onclick="resetAllFilters(); return false;" class="flex items-center gap-2.5 group shrink-0">
+          <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-brand-red flex items-center justify-center shadow-lg shadow-red-600/30 group-hover:scale-105 transition-transform">
+            <!-- SVG Balão + S identico à marca -->
+            <svg class="w-6 h-6 sm:w-7 sm:h-7 text-white" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M50 12C29.0132 12 12 28.5655 12 49C12 69.4345 29.0132 86 50 86C58.282 86 65.9488 83.4184 72.2225 79.0247L85.5 84.5L80.5621 71.538C85.2528 65.2498 88 57.4508 88 49C88 28.5655 70.9868 12 50 12Z" stroke="white" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M60 36C60 36 55.5 31 47.5 31C39.5 31 35 35.5 35 41C35 51 63 47 63 59.5C63 66 56.5 70 48 70C39.5 70 34 64.5 34 64.5" stroke="white" stroke-width="9" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="flex flex-col">
+            <div class="flex items-center gap-1">
+              <span class="font-display font-extrabold text-lg sm:text-xl tracking-tight leading-none">
+                SOBRAL<span class="text-brand-red">ONLINE</span>
+              </span>
+              <svg class="w-4 h-4 text-[#0095F6] shrink-0" viewBox="0 0 24 24" fill="currentColor" title="Portal Verificado">
+                <path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.71-3.998-3.818-3.998-.47 0-.92.084-1.336.25C14.818 2.415 13.51 1.5 12 1.5s-2.816.917-3.437 2.25c-.415-.165-.866-.25-1.336-.25-2.11 0-3.818 1.79-3.818 4 0 .494.083.964.237 1.4-1.272.65-2.147 2.018-2.147 3.6 0 1.495.782 2.798 1.942 3.486-.02.17-.032.34-.032.514 0 2.21 1.708 4 3.818 4 .47 0 .92-.086 1.335-.25.62 1.334 1.926 2.25 3.437 2.25 1.512 0 2.818-.916 3.437-2.25.415.163.865.248 1.336.248 2.11 0 3.818-1.79 3.818-4 0-.174-.012-.344-.033-.513 1.158-.687 1.943-1.99 1.943-3.484zm-6.616-3.334l-4.334 6.5c-.145.217-.382.334-.625.334-.143 0-.288-.04-.416-.126l-.115-.094-2.415-2.415c-.293-.293-.293-.768 0-1.06s.768-.294 1.06 0l1.77 1.767 3.825-5.74c.23-.345.696-.436 1.04-.207.346.23.44.696.21 1.04z"/>
+              </svg>
+            </div>
+            <span class="text-[10px] font-medium theme-text-muted tracking-wide">O PORTAL DA ZONA NORTE • +715K</span>
+          </div>
+        </a>
+
+        <!-- Barra de Busca em Tempo Real (Desktop) -->
+        <div class="hidden md:flex items-center flex-1 max-w-md mx-4">
+          <div class="relative w-full">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-xs theme-text-muted"></i>
+            <input 
+              type="text" 
+              id="desktop-search"
+              oninput="handleSearchInput(this.value)"
+              placeholder="Buscar notícias em Sobral, Ibiapaba, vagas, polícia..." 
+              class="w-full pl-9 pr-8 py-2 rounded-xl theme-elevated border text-xs focus:outline-none focus:border-brand-red transition"
+            >
+            <button id="clear-desktop-search" onclick="handleSearchInput('')" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-xs theme-text-muted hover:text-brand-red">
+              <i class="fa-solid fa-circle-xmark"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Ações Rápidas do Header -->
+        <div class="flex items-center gap-2">
+          <!-- Botão Busca Mobile -->
+          <button onclick="toggleMobileSearch()" aria-label="Buscar" class="md:hidden w-9 h-9 rounded-xl theme-elevated border flex items-center justify-center text-sm hover:border-brand-red transition">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </button>
+
+          <!-- Atalho Direto para Central de Vagas -->
+          <a href="#central-vagas" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl theme-elevated border text-xs font-display font-bold hover:border-emerald-500/50 transition">
+            <i class="fa-solid fa-briefcase text-emerald-500"></i>
+            <span>Vagas Hoje</span>
+            <span class="bg-emerald-500/20 text-emerald-400 text-[10px] px-1.5 py-0.2 rounded-full">14</span>
+          </a>
+
+          <!-- Botão Ativar Alertas (Push / Newsletter Modal) -->
+          <button onclick="openAlertsModal()" class="inline-flex items-center gap-1.5 bg-brand-red hover:bg-brand-crimson text-white px-3 py-2 rounded-xl text-xs font-display font-bold shadow-md shadow-red-600/20 transition active:scale-95">
+            <i class="fa-regular fa-bell animate-bounce"></i>
+            <span class="hidden sm:inline">Receber Alertas</span>
+            <span class="sm:hidden">Alertas</span>
+          </button>
+
+          <!-- Alternar Tema (Dark Editorial / Light Clean) -->
+          <button onclick="toggleTheme()" id="theme-toggle-btn" title="Alternar Tema Claro/Escuro" class="w-9 h-9 rounded-xl theme-elevated border flex items-center justify-center text-sm hover:border-brand-red transition">
+            <i id="theme-icon" class="fa-solid fa-sun text-amber-400"></i>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Barra de Busca Mobile Expansível -->
+      <div id="mobile-search-bar" class="hidden md:hidden pb-3">
+        <div class="relative w-full">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-xs theme-text-muted"></i>
+          <input 
+            type="text" 
+            id="mobile-search"
+            oninput="handleSearchInput(this.value)"
+            placeholder="Digite para filtrar matérias na hora..." 
+            class="w-full pl-9 pr-9 py-2.5 rounded-xl theme-elevated border text-xs focus:outline-none focus:border-brand-red"
+          >
+          <button onclick="handleSearchInput('')" class="absolute right-3 top-1/2 -translate-y-1/2 text-xs theme-text-muted">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- 2. NAVEGAÇÃO DE EDITORIAS E REGIÕES (SCROLL-SNAP MOBILE) -->
+      <nav aria-label="Editorias e Regiões" class="py-2.5 border-t border-white/5 flex items-center gap-2 overflow-x-auto no-scrollbar snap-x">
+        <button onclick="filterByCategory('Todas')" data-cat="Todas" class="cat-chip snap-start shrink-0 px-3.5 py-1.5 rounded-full text-xs font-display font-bold transition bg-brand-red text-white shadow-sm">
+          Todas as Notícias
+        </button>
+        <button onclick="filterByCategory('Sobral')" data-cat="Sobral" class="cat-chip snap-start shrink-0 px-3.5 py-1.5 rounded-full text-xs font-display font-semibold theme-elevated border hover:border-brand-red transition flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Sobral
+        </button>
+        <button onclick="filterByCategory('Ibiapaba')" data-cat="Ibiapaba" class="cat-chip snap-start shrink-0 px-3.5 py-1.5 rounded-full text-xs font-display font-semibold theme-elevated border hover:border-brand-red transition">
+          Serra da Ibiapaba
+        </button>
+        <button onclick="filterByCategory('Itapipoca')" data-cat="Itapipoca" class="cat-chip snap-start shrink-0 px-3.5 py-1.5 rounded-full text-xs font-display font-semibold theme-elevated border hover:border-brand-red transition">
+          Itapipoca
+        </button>
+        <button onclick="filterByCategory('Polícia')" data-cat="Polícia" class="cat-chip snap-start shrink-0 px-3.5 py-1.5 rounded-full text-xs font-display font-semibold theme-elevated border hover:border-brand-red transition">
+          Polícia & Plantão
+        </button>
+        <button onclick="filterByCategory('Política')" data-cat="Política" class="cat-chip snap-start shrink-0 px-3.5 py-1.5 rounded-full text-xs font-display font-semibold theme-elevated border hover:border-brand-red transition">
+          Política & Gestão
+        </button>
+        <button onclick="scrollToSection('central-vagas')" class="snap-start shrink-0 px-3.5 py-1.5 rounded-full text-xs font-display font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500 hover:text-white transition flex items-center gap-1.5">
+          <i class="fa-solid fa-briefcase text-[11px]"></i> Empregos & Vagas
+        </button>
+        <button onclick="filterByCategory('Eventos')" data-cat="Eventos" class="cat-chip snap-start shrink-0 px-3.5 py-1.5 rounded-full text-xs font-display font-semibold theme-elevated border hover:border-brand-red transition">
+          Eventos & Esporte
+        </button>
+      </nav>
+
+    </div>
+  </header>
+
+  <!-- CONTEÚDO PRINCIPAL DO PORTAL -->
+  <main class="max-w-7xl mx-auto w-full px-3 sm:px-6 pt-4 pb-16 flex-1">
+
+    <!-- 3. ESPAÇO PUBLICITÁRIO PREMIUM (RECRIAÇÃO DO BANNER "PÉ-DE-MEIA" DO PRINT SEM QUEBRAR O LAYOUT) -->
+    <section aria-label="Publicidade Institucional" class="mb-6">
+      <div class="flex items-center justify-between mb-1.5 px-1">
+        <span class="text-[10px] font-semibold uppercase tracking-widest theme-text-muted flex items-center gap-1.5">
+          <i class="fa-solid fa-rectangle-ad text-brand-red"></i> Publicidade Oficial • Formato Alta Visibilidade (Zero CLS)
+        </span>
+        <button onclick="showToast('Mídia Kit Comercial', 'Espaço publicitário otimizado para patrocinadores governamentais e locais.')" class="text-[10px] font-bold text-brand-red hover:underline">
+          Anuncie neste espaço →
+        </button>
+      </div>
+
+      <!-- Banner Horizontal "Pé-de-Meia" fiel ao print mas em alta definição -->
+      <div onclick="showToast('Campanha Institucional', 'Redirecionamento rastreado para o anunciante (Pé-de-Meia / MEC).')" class="cursor-pointer group relative rounded-2xl overflow-hidden border border-emerald-500/30 bg-gradient-to-r from-[#062312] via-[#0B3B1E] to-[#051C0E] p-3.5 sm:px-6 sm:py-4 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-3">
+        <!-- Brilho decorativo -->
+        <div class="absolute -right-10 -top-10 w-44 h-44 bg-emerald-400/15 rounded-full blur-2xl pointer-events-none"></div>
+
+        <div class="flex items-center gap-3.5 w-full sm:w-auto">
+          <img 
+            src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=240&q=80" 
+            alt="Estudantes Pé-de-Meia"
+            onerror="this.src='https://placehold.co/160x100/0B3B1E/FFFFFF?text=Estudantes'"
+            class="w-16 h-12 sm:w-20 sm:h-14 rounded-xl object-cover border border-emerald-400/30 shrink-0"
+          >
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5">
+              <span class="bg-amber-400 text-black text-[9px] font-display font-extrabold uppercase px-2 py-0.5 rounded">
+                GOVERNO FEDERAL & CEARÁ
+              </span>
+              <span class="text-[10px] text-emerald-300 font-medium hidden sm:inline">• Educação que transforma</span>
+            </div>
+            <h2 class="font-display font-extrabold text-sm sm:text-lg text-white leading-tight mt-0.5">
+              MAIS DE <span class="text-emerald-400">280 MIL ESTUDANTES</span> COM O <span class="underline decoration-amber-400">PÉ-DE-MEIA</span>
+            </h2>
+          </div>
+        </div>
+
+        <div class="w-full sm:w-auto flex items-center justify-end shrink-0">
+          <span class="w-full sm:w-auto text-center bg-emerald-500 group-hover:bg-emerald-400 text-slate-950 font-display font-extrabold text-xs px-4 py-2 rounded-xl transition flex items-center justify-center gap-1.5 shadow">
+            Consultar Benefício <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- BARRA DE STATUS DE FILTRO (Aparece quando o usuário filtra ou pesquisa) -->
+    <div id="filter-status-bar" class="hidden mb-5 px-4 py-3 rounded-xl theme-elevated border flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2 text-xs">
+        <span class="w-2 h-2 rounded-full bg-brand-red"></span>
+        <span>Exibindo resultados para: <strong id="filter-status-label" class="text-brand-red font-bold">Todas</strong></span>
+        <span id="filter-count-badge" class="bg-brand-red/15 text-brand-red px-2 py-0.5 rounded-md font-bold text-[11px]">0 matérias</span>
+      </div>
+      <button onclick="resetAllFilters()" class="text-xs font-bold text-brand-red hover:underline flex items-center gap-1">
+        <i class="fa-solid fa-rotate-left"></i> Limpar filtro
+      </button>
+    </div>
+
+    <!-- 4. BENTO GRID DE DESTAQUES (RECRIAÇÃO FIEL AO MOSAICO DO PRINT COM DESIGN DE ELITE) -->
+    <section id="bento-section" aria-label="Manchetes em Destaque" class="mb-10">
+      <div class="flex items-center justify-between mb-3 px-1">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-5 rounded-full bg-brand-red"></span>
+          <h2 class="font-display font-extrabold text-base sm:text-lg uppercase tracking-tight">
+            Destaques de Capa
+          </h2>
+        </div>
+        <span class="text-xs theme-text-muted flex items-center gap-1.5">
+          <i class="fa-regular fa-clock text-brand-red"></i> Atualizado há poucos minutos
+        </span>
+      </div>
+
+      <!-- Layout Responsivo: No Mobile replica exatamente a pilha do print (1 grande + 1 largo + 2 lado a lado). No Desktop vira Bento Grid de 12 colunas -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
+
+        <!-- CARD PRINCIPAL (Print 1: Diretor Gerald Thomas grava vídeo na UTI e tranquiliza fãs sobre internação) -->
+        <article onclick="openArticleModal(1)" class="news-card cursor-pointer lg:col-span-7 relative rounded-2xl overflow-hidden border border-white/10 group min-h-[290px] sm:min-h-[380px] flex flex-col justify-end bg-zinc-900 shadow-xl">
+          <img 
+            src="https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=1000&q=80" 
+            alt="Diretor Gerald Thomas grava vídeo na UTI"
+            onerror="this.src='https://placehold.co/900x500/1E1E24/FFFFFF?text=Noticia+Principal'"
+            class="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 opacity-85"
+          >
+          <!-- Gradiente de proteção de leitura -->
+          <div class="absolute inset-0 bg-gradient-to-t from-black via-black/65 to-transparent"></div>
+
+          <!-- Topo do Card: Badge Notícias + Botão Áudio IA -->
+          <div class="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between gap-2 z-10">
+            <span class="bg-brand-red text-white text-[11px] font-display font-extrabold uppercase tracking-wider px-3 py-1 rounded-lg shadow">
+              Notícias • Destaque
+            </span>
+            <span class="bg-black/65 backdrop-blur-md border border-white/15 text-white text-[11px] font-semibold px-2.5 py-1 rounded-lg flex items-center gap-1.5">
+              <i class="fa-solid fa-headphones text-red-400"></i> Áudio IA Disponível
+            </span>
+          </div>
+
+          <!-- Conteúdo da Manchete (Sem botão do WhatsApp tampando o texto!) -->
+          <div class="relative z-10 p-4 sm:p-6">
+            <div class="flex items-center gap-2 text-xs text-zinc-300 mb-2">
+              <span class="font-semibold text-red-400">Saúde & Bastidores</span>
+              <span>•</span>
+              <span>Há 18 min</span>
+              <span>•</span>
+              <span class="flex items-center gap-1"><i class="fa-regular fa-eye"></i> 14.2k leituras</span>
+            </div>
+            <h1 class="font-display font-extrabold text-xl sm:text-2xl md:text-3xl text-white leading-tight group-hover:text-red-200 transition-colors">
+              Diretor Gerald Thomas grava vídeo na UTI e tranquiliza fãs sobre internação
+            </h1>
+            <p class="text-xs sm:text-sm text-zinc-300 mt-2 line-clamp-2">
+              Dramaturgo compartilhou atualização direta do hospital explicando evolução clínica e agradeceu mensagens de apoio recebidas nas últimas horas.
+            </p>
+          </div>
+        </article>
+
+        <!-- COLUNA DIREITA DO BENTO GRID (Secundário Largo + Dupla Lado a Lado fiel ao print) -->
+        <div class="lg:col-span-5 flex flex-col gap-3.5">
+
+          <!-- CARD SECUNDÁRIO LARGO (Print 2: Relembre as apresentações mais marcantes da história do Super Bowl) -->
+          <article onclick="openArticleModal(2)" class="news-card cursor-pointer relative rounded-2xl overflow-hidden border border-white/10 group min-h-[200px] sm:min-h-[210px] flex flex-col justify-end bg-zinc-900 shadow-lg">
+            <img 
+              src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=900&q=80" 
+              alt="Apresentações marcantes do Super Bowl"
+              onerror="this.src='https://placehold.co/800x450/1E1E24/FFFFFF?text=Super+Bowl'"
+              class="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 opacity-85"
+            >
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
+
+            <div class="absolute top-3 left-3 z-10">
+              <span class="bg-purple-600/90 backdrop-blur-sm text-white text-[10px] font-display font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-md">
+                Entretenimento & Shows
+              </span>
+            </div>
+
+            <div class="relative z-10 p-4">
+              <h3 class="font-display font-extrabold text-base sm:text-lg text-white leading-snug group-hover:text-red-200 transition-colors">
+                Relembre as apresentações mais marcantes da história do Super Bowl
+              </h3>
+              <div class="flex items-center justify-between text-[11px] text-zinc-300 mt-1.5">
+                <span>De Michael Jackson a Lady Gaga e The Weeknd</span>
+                <span class="text-red-400 font-bold">Ler matéria →</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- DUPLA DE CARDS LADO A LADO (Grid de 2 colunas MESMO NO MOBILE, exatamente como no print!) -->
+          <div class="grid grid-cols-2 gap-3">
+
+            <!-- Card Dupla 1 (Print: Batalha judicial entre moradora e condomínio define rumo de ciclovia) -->
+            <article onclick="openArticleModal(3)" class="news-card cursor-pointer relative rounded-2xl overflow-hidden border border-white/10 group min-h-[195px] flex flex-col justify-end bg-zinc-900 shadow-lg">
+              <img 
+                src="https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=600&q=80" 
+                alt="Ciclovia e decisão judicial"
+                onerror="this.src='https://placehold.co/400x400/1E1E24/FFFFFF?text=Ciclovia'"
+                class="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 opacity-80"
+              >
+              <div class="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent"></div>
+
+              <div class="absolute top-2.5 left-2.5 z-10">
+                <span class="bg-amber-500/90 text-slate-950 text-[9px] font-display font-extrabold uppercase px-2 py-0.5 rounded">
+                  Justiça & Urbano
+                </span>
+              </div>
+
+              <div class="relative z-10 p-3">
+                <h3 class="font-display font-bold text-xs sm:text-sm text-white leading-snug line-clamp-3 group-hover:text-red-200">
+                  Batalha judicial entre moradora e condomínio define rumo de ciclovia
+                </h3>
+              </div>
+            </article>
+
+            <!-- Card Dupla 2 (Print: Água mineral chega a Banabuiú sob escolta policial após ameaças) -->
+            <article onclick="openArticleModal(4)" class="news-card cursor-pointer relative rounded-2xl overflow-hidden border border-white/10 group min-h-[195px] flex flex-col justify-end bg-zinc-900 shadow-lg">
+              <img 
+                src="https://images.unsplash.com/photo-1541888946425-d09bb18086f6?auto=format&fit=crop&w=600&q=80" 
+                alt="Escolta policial de água mineral em Banabuiú"
+                onerror="this.src='https://placehold.co/400x400/1E1E24/FFFFFF?text=Policia+Ceara'"
+                class="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 opacity-80"
+              >
+              <div class="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent"></div>
+
+              <div class="absolute top-2.5 left-2.5 z-10">
+                <span class="bg-brand-red text-white text-[9px] font-display font-extrabold uppercase px-2 py-0.5 rounded">
+                  Polícia • Ceará
+                </span>
+              </div>
+
+              <div class="relative z-10 p-3">
+                <h3 class="font-display font-bold text-xs sm:text-sm text-white leading-snug line-clamp-3 group-hover:text-red-200">
+                  Água mineral chega a Banabuiú sob escolta policial após ameaças
+                </h3>
+              </div>
+            </article>
+
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 5. HUB NATIVO "BUSCA DE VAGAS & EMPREGOS" (TRANSFORMANDO O ANÚNCIO INTRUSIVO DO TOPO EM UMA FERRAMENTA DE RETENÇÃO) -->
+    <section id="central-vagas" aria-label="Central de Vagas de Emprego" class="mb-10 scroll-mt-28">
+      <div class="theme-surface border rounded-3xl p-4 sm:p-6 shadow-xl relative overflow-hidden">
+        <!-- Detalhe sutil verde/esmeralda no canto -->
+        <div class="absolute -top-16 -right-16 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <!-- Cabeçalho da Central de Vagas -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-white/10">
+          <div>
+            <div class="inline-flex items-center gap-1.5 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-display font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full mb-2">
+              <i class="fa-solid fa-briefcase"></i> UTILIDADE PÚBLICA • DESTAQUE NO INSTAGRAM
+            </div>
+            <h2 class="font-display font-extrabold text-xl sm:text-2xl flex items-center gap-2">
+              <span>BUSCA DE VAGAS</span>
+              <span class="text-xs font-semibold px-2.5 py-1 rounded-lg theme-elevated border theme-text-muted">Sobral & Zona Norte</span>
+            </h2>
+            <p class="text-xs sm:text-sm theme-text-muted mt-0.5">
+              Substituímos o banner intrusivo de terceiros por um balcão nativo de empregos que retém o leitor dentro do portal.
+            </p>
+          </div>
+
+          <!-- As 3 Abas exatas do Print ("Lista de Hoje", "Vagas Recentes", "Vagas por Região") -->
+          <div class="flex items-center gap-1.5 p-1 rounded-2xl theme-elevated border self-start">
+            <button onclick="switchJobTab('hoje')" id="job-tab-hoje" class="job-tab-btn px-3.5 py-2 rounded-xl text-xs font-display font-bold bg-emerald-600 text-white shadow transition">
+              Lista de Hoje (6)
+            </button>
+            <button onclick="switchJobTab('recentes')" id="job-tab-recentes" class="job-tab-btn px-3.5 py-2 rounded-xl text-xs font-display font-semibold theme-text-muted hover:text-white transition">
+              Vagas Recentes
+            </button>
+            <button onclick="switchJobTab('regiao')" id="job-tab-regiao" class="job-tab-btn px-3.5 py-2 rounded-xl text-xs font-display font-semibold theme-text-muted hover:text-white transition">
+              Vagas por Região
+            </button>
+          </div>
+        </div>
+
+        <!-- Grid Dinâmico de Vagas -->
+        <div id="jobs-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 mt-5">
+          <!-- Renderizado via JavaScript -->
+        </div>
+
+        <!-- Rodapé da Central de Vagas -->
+        <div class="mt-5 pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+          <span class="theme-text-muted flex items-center gap-2">
+            <i class="fa-solid fa-building-circle-check text-emerald-400"></i>
+            Tem uma empresa na Zona Norte e quer divulgar uma vaga gratuitamente ou em destaque?
+          </span>
+          <button onclick="showToast('Cadastro de Vaga Comercial', 'Sua empresa pode anunciar vagas diretamente com a equipe do Sobral Online.')" class="w-full sm:w-auto px-4 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500 text-emerald-400 hover:text-slate-950 border border-emerald-500/30 font-display font-bold transition text-center">
+            Enviar Vaga de Emprego →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. BANNER COMERCIAL SENAI CEARÁ (RECRIADO FIEL AO PRINT COM DESIGN DE ALTA CONVERSÃO) -->
+    <section aria-label="Patrocinador Oficial SENAI Ceará" class="mb-10">
+      <div class="flex items-center justify-between mb-1.5 px-1">
+        <span class="text-[10px] font-semibold uppercase tracking-widest theme-text-muted">
+          Patrocinador Educação & Indústria • SENAI Ceará
+        </span>
+        <span class="text-[10px] theme-text-muted">Publicidade</span>
+      </div>
+
+      <div onclick="showToast('Campanha SENAI Ceará', 'Clique contabilizado para o relatório comercial do anunciante SENAI Ceará.')" class="cursor-pointer group relative rounded-3xl overflow-hidden border border-blue-500/40 bg-gradient-to-r from-[#06215C] via-[#0B358E] to-[#081F54] p-5 sm:p-7 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+        <!-- Elementos gráficos laranja/azul inspirados no banner original do SENAI -->
+        <div class="absolute -left-10 -bottom-10 w-52 h-52 bg-orange-500/20 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute right-1/4 -top-12 w-40 h-40 bg-blue-400/20 rounded-full blur-2xl pointer-events-none"></div>
+
+        <div class="flex flex-col sm:flex-row items-center gap-5 relative z-10 text-center sm:text-left">
+          <div class="relative shrink-0">
+            <img 
+              src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=300&q=80" 
+              alt="Cursos Técnicos SENAI Ceará"
+              onerror="this.src='https://placehold.co/200x200/0B358E/FFFFFF?text=SENAI+CE'"
+              class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border-2 border-orange-500 shadow-lg"
+            >
+            <span class="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-white text-[#06215C] font-display font-black text-[10px] tracking-widest px-2.5 py-0.5 rounded shadow">
+              SENAI
+            </span>
+          </div>
+
+          <div>
+            <p class="text-xs sm:text-sm font-semibold text-amber-300 mb-1">
+              Construa uma <span class="underline">carreira de sucesso</span> com nossos
+            </p>
+            <h3 class="font-display font-black text-2xl sm:text-3xl tracking-tight text-orange-400 drop-shadow leading-none mb-2">
+              CURSOS TÉCNICOS
+            </h3>
+            <p class="text-xs sm:text-sm text-blue-100 max-w-lg">
+              Unidades em <strong>Sobral e Região</strong> com laboratórios de ponta em Eletrotécnica, Automação, Mecânica, Segurança do Trabalho e TI.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex flex-col items-center md:items-end gap-2 shrink-0 relative z-10 w-full md:w-auto">
+          <div class="text-center md:text-right">
+            <span class="block text-[11px] font-bold uppercase tracking-wider text-blue-200">SENAI CEARÁ</span>
+            <span class="block font-display font-extrabold text-sm text-white">É PRA VOCÊ</span>
+          </div>
+          <span class="w-full md:w-auto text-center bg-gradient-to-r from-orange-500 to-red-600 group-hover:from-orange-400 group-hover:to-red-500 text-white font-display font-extrabold text-xs uppercase tracking-wider px-6 py-3 rounded-xl shadow-lg shadow-orange-600/30 transition flex items-center justify-center gap-2">
+            CONFIRA AQUI <i class="fa-solid fa-arrow-pointer"></i>
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. FEED DE NOTÍCIAS REGIONAL + SIDEBAR DE REPÓRTERES E EVENTO -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+      <!-- Coluna Principal: Feed Filtrável de Reportagens (8 Colunas) -->
+      <section aria-label="Últimas Notícias da Região" class="lg:col-span-8">
+        <div class="flex items-center justify-between mb-4 pb-2 border-b border-white/10">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-5 rounded-full bg-brand-red"></span>
+            <h2 class="font-display font-extrabold text-lg uppercase tracking-tight">
+              Últimas Reportagens • Zona Norte
+            </h2>
+          </div>
+          <span id="feed-total-counter" class="text-xs font-semibold theme-text-muted">
+            Mostrando todas as notícias
+          </span>
+        </div>
+
+        <!-- Container Dinâmico dos Cards do Feed -->
+        <div id="news-feed-container" class="flex flex-col gap-4">
+          <!-- Renderizado via JavaScript -->
+        </div>
+      </section>
+
+      <!-- Coluna Lateral (4 Colunas): Evento Sobral Online Run + Equipe de Repórteres + Newsletter -->
+      <aside class="lg:col-span-4 flex flex-col gap-6 sticky top-28">
+
+        <!-- Card Oficial: 1ª Edição Sobral Online Run (Do print do Linktree) -->
+        <div class="theme-surface border rounded-3xl overflow-hidden shadow-lg group">
+          <div class="relative h-44 bg-zinc-900 overflow-hidden">
+            <img 
+              src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=800&q=80" 
+              alt="1ª Edição Sobral Online Run"
+              onerror="this.src='https://placehold.co/600x350/9B031D/FFFFFF?text=Sobral+Online+Run'"
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-85"
+            >
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+            <span class="absolute top-3 left-3 bg-brand-red text-white text-[10px] font-display font-extrabold uppercase px-2.5 py-1 rounded-md shadow">
+              <i class="fa-solid fa-person-running mr-1"></i> EVENTO OFICIAL
+            </span>
+            <div class="absolute bottom-3 left-3.5 right-3.5">
+              <h3 class="font-display font-extrabold text-lg text-white leading-tight">
+                1ª Edição Sobral Online Run
+              </h3>
+              <p class="text-xs text-zinc-200">Kit Atleta completo: Camisa, Boné, Sacochila e Medalha</p>
+            </div>
+          </div>
+          <div class="p-4">
+            <button onclick="openArticleModal(8)" class="w-full py-2.5 px-4 rounded-xl bg-brand-red hover:bg-brand-crimson text-white font-display font-bold text-xs transition flex items-center justify-center gap-2 shadow-md shadow-red-600/20">
+              Faça sua inscrição agora <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Central Direta dos Repórteres Regionais (Fiel ao print 2) -->
+        <div class="theme-surface border rounded-3xl p-5 shadow-lg">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-display font-extrabold text-sm uppercase tracking-wider flex items-center gap-2">
+              <i class="fa-solid fa-tower-broadcast text-brand-red"></i>
+              Fale com Nossos Repórteres
+            </h3>
+            <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+              WhatsApp Direto
+            </span>
+          </div>
+          <p class="text-xs theme-text-muted mb-4">
+            Tem uma denúncia, flagrante ou pauta na sua cidade? Acione o repórter da sua região:
+          </p>
+
+          <div class="flex flex-col gap-2.5">
+            <!-- Jonas Deison -->
+            <button onclick="contactReporter('Jonas Deison', 'Sobral e Região')" class="w-full p-2.5 rounded-2xl theme-elevated border hover:border-brand-red flex items-center gap-3 text-left transition group">
+              <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=160&q=80" alt="Jonas Deison" class="w-11 h-11 rounded-xl object-cover shrink-0">
+              <div class="flex-1 min-w-0">
+                <span class="text-[10px] font-bold text-brand-red uppercase block">Sobral e Região • CEO</span>
+                <p class="font-display font-bold text-xs truncate">Repórter Jonas Deison</p>
+              </div>
+              <span class="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white flex items-center justify-center transition">
+                <i class="fa-brands fa-whatsapp"></i>
+              </span>
+            </button>
+
+            <!-- Wiiliam Brenner -->
+            <button onclick="contactReporter('Wiiliam Brenner', 'Serra da Ibiapaba')" class="w-full p-2.5 rounded-2xl theme-elevated border hover:border-brand-red flex items-center gap-3 text-left transition group">
+              <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=160&q=80" alt="Wiiliam Brenner" class="w-11 h-11 rounded-xl object-cover shrink-0">
+              <div class="flex-1 min-w-0">
+                <span class="text-[10px] font-bold text-amber-400 uppercase block">Serra da Ibiapaba</span>
+                <p class="font-display font-bold text-xs truncate">Repórter Wiiliam Brenner</p>
+              </div>
+              <span class="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white flex items-center justify-center transition">
+                <i class="fa-brands fa-whatsapp"></i>
+              </span>
+            </button>
+
+            <!-- Mikael -->
+            <button onclick="contactReporter('Mikael', 'Sobral')" class="w-full p-2.5 rounded-2xl theme-elevated border hover:border-brand-red flex items-center gap-3 text-left transition group">
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=160&q=80" alt="Repórter Mikael" class="w-11 h-11 rounded-xl object-cover shrink-0">
+              <div class="flex-1 min-w-0">
+                <span class="text-[10px] font-bold text-sky-400 uppercase block">Sobral • Plantão</span>
+                <p class="font-display font-bold text-xs truncate">Repórter Mikael</p>
+              </div>
+              <span class="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white flex items-center justify-center transition">
+                <i class="fa-brands fa-whatsapp"></i>
+              </span>
+            </button>
+
+            <!-- Duduzinho -->
+            <button onclick="contactReporter('Duduzinho', 'Itapipoca')" class="w-full p-2.5 rounded-2xl theme-elevated border hover:border-brand-red flex items-center gap-3 text-left transition group">
+              <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=160&q=80" alt="Repórter Duduzinho" class="w-11 h-11 rounded-xl object-cover shrink-0">
+              <div class="flex-1 min-w-0">
+                <span class="text-[10px] font-bold text-purple-400 uppercase block">Itapipoca e Região</span>
+                <p class="font-display font-bold text-xs truncate">Repórter Duduzinho</p>
+              </div>
+              <span class="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white flex items-center justify-center transition">
+                <i class="fa-brands fa-whatsapp"></i>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 8. CAPTURA DE LEADS: NEWSLETTER POR E-MAIL & GRUPO VIP -->
+        <div class="rounded-3xl p-5 bg-gradient-to-br from-[#1C0D12] via-[#16161A] to-[#121216] border border-red-500/30 text-white shadow-xl">
+          <div class="inline-flex items-center gap-1.5 bg-brand-red/20 border border-brand-red/40 text-red-300 text-[10px] font-display font-extrabold uppercase px-2.5 py-1 rounded-full mb-3">
+            <i class="fa-solid fa-envelope-open-text"></i> RESUMO DIÁRIO & SEMANAL
+          </div>
+          <h3 class="font-display font-extrabold text-base leading-snug mb-1">
+            Receba as principais notícias de Sobral no seu E-mail
+          </h3>
+          <p class="text-xs text-zinc-400 mb-4">
+            Sem spam. Apenas o resumo matinal com o que realmente importa na Zona Norte e vagas do dia.
+          </p>
+
+          <form onsubmit="handleNewsletterSubmit(event)" class="flex flex-col gap-2.5">
+            <input 
+              type="email" 
+              id="newsletter-email"
+              required
+              placeholder="Digite seu melhor e-mail..." 
+              class="w-full px-3.5 py-2.5 rounded-xl bg-black/40 border border-white/15 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-brand-red"
+            >
+            <select id="newsletter-region" class="w-full px-3.5 py-2.5 rounded-xl bg-black/40 border border-white/15 text-xs text-zinc-200 focus:outline-none focus:border-brand-red">
+              <option value="Sobral e Região">Quero notícias de: Sobral e Região</option>
+              <option value="Serra da Ibiapaba">Quero notícias de: Serra da Ibiapaba</option>
+              <option value="Itapipoca">Quero notícias de: Itapipoca</option>
+              <option value="Apenas Vagas de Emprego">Apenas Vagas de Emprego</option>
+            </select>
+            <button type="submit" class="w-full py-2.5 rounded-xl bg-brand-red hover:bg-brand-crimson text-white font-display font-bold text-xs transition shadow-lg shadow-red-600/25">
+              Inscrever-se Gratuitamente
+            </button>
+          </form>
+        </div>
+
+      </aside>
+
+    </div>
+
+  </main>
+
+  <!-- RODAPÉ EDITORIAL COMPLETO -->
+  <footer class="theme-surface border-t mt-12 py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 pb-8 border-b border-white/10">
+        
+        <div class="md:col-span-2">
+          <div class="flex items-center gap-2.5 mb-3">
+            <div class="w-9 h-9 rounded-full bg-brand-red flex items-center justify-center text-white font-display font-black">
+              S
+            </div>
+            <span class="font-display font-extrabold text-lg">
+              SOBRAL<span class="text-brand-red">ONLINE</span>
+            </span>
+          </div>
+          <p class="text-xs theme-text-muted max-w-md leading-relaxed mb-4">
+            O portal de notícias líder de audiência na Zona Norte do Ceará.Mais de 715 mil seguidores acompanhando jornalismo em tempo real em Sobral, Serra da Ibiapaba e Itapipoca.
+          </p>
+          <div class="flex items-center gap-2">
+            <button onclick="showToast('Instagram Oficial', '@sobralonline • 715 mil seguidores')" class="w-9 h-9 rounded-xl theme-elevated border flex items-center justify-center hover:border-brand-red transition"><i class="fa-brands fa-instagram"></i></button>
+            <button onclick="showToast('Facebook Oficial', 'Sobral Online')" class="w-9 h-9 rounded-xl theme-elevated border flex items-center justify-center hover:border-brand-red transition"><i class="fa-brands fa-facebook-f"></i></button>
+            <button onclick="showToast('TikTok Oficial', '@sobralonline')" class="w-9 h-9 rounded-xl theme-elevated border flex items-center justify-center hover:border-brand-red transition"><i class="fa-brands fa-tiktok"></i></button>
+            <button onclick="showToast('YouTube / Lives', 'Sobral Online TV')" class="w-9 h-9 rounded-xl theme-elevated border flex items-center justify-center hover:border-brand-red transition"><i class="fa-brands fa-youtube"></i></button>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="font-display font-bold text-xs uppercase tracking-wider mb-3 text-brand-red">Cobertura Regional</h4>
+          <ul class="space-y-2 text-xs theme-text-muted">
+            <li><a href="#" onclick="filterByCategory('Sobral'); return false;" class="hover:text-brand-red">Sobral e Distritos</a></li>
+            <li><a href="#" onclick="filterByCategory('Ibiapaba'); return false;" class="hover:text-brand-red">Tianguá, Viçosa e Ibiapaba</a></li>
+            <li><a href="#" onclick="filterByCategory('Itapipoca'); return false;" class="hover:text-brand-red">Itapipoca e Litoral Oeste</a></li>
+            <li><a href="#central-vagas" class="hover:text-brand-red">Balcão de Empregos</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="font-display font-bold text-xs uppercase tracking-wider mb-3 text-brand-red">Expediente & Comercial</h4>
+          <ul class="space-y-2 text-xs theme-text-muted">
+            <li>CEO & Direção: <strong>@jonasdeison</strong></li>
+            <li><button onclick="contactReporter('Setor Comercial', 'Publicidade')" class="hover:text-brand-red">Anuncie sua Marca (Mídia Kit)</button></li>
+            <li><button onclick="openAlertsModal()" class="hover:text-brand-red">Central de Notificações</button></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] theme-text-muted">
+        <p>© 2026 Sobral Online Comunicação • Todos os direitos reservados.</p>
+        <p class="flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          Infraestrutura Web Otimizada • Carregamento Instantâneo Mobile
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 9. BOTÃO FLUTUANTE INTELIGENTE DE PLANTÃO (EVOLUÇÃO DO BOTÃO DE WHATSAPP DO PRINT QUE TAMPAVA AS MANCHETES) -->
+  <div class="fixed bottom-5 right-4 sm:right-6 z-40 flex flex-col items-end">
+    
+    <!-- Menu Rápido de Plantão (Abre ao clicar no botão) -->
+    <div id="whatsapp-quick-menu" class="hidden mb-3 w-72 sm:w-80 rounded-3xl theme-surface border border-emerald-500/40 shadow-2xl overflow-hidden transition-all">
+      <div class="bg-gradient-to-r from-emerald-600 to-emerald-700 p-4 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
+            <i class="fa-brands fa-whatsapp text-lg"></i>
+          </div>
+          <div>
+            <h4 class="font-display font-extrabold text-xs uppercase tracking-wider">Plantão Sobral Online</h4>
+            <p class="text-[11px] text-emerald-100">Escolha com quem deseja falar:</p>
+          </div>
+        </div>
+        <button onclick="toggleWhatsAppMenu()" class="text-white/80 hover:text-white text-sm">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="p-3 flex flex-col gap-2 max-h-80 overflow-y-auto">
+        <button onclick="contactReporter('Redação • Envio de Flagrante/Vídeo', 'Plantão 24h')" class="w-full p-2.5 rounded-2xl bg-brand-red/10 border border-brand-red/30 hover:bg-brand-red hover:text-white text-left flex items-center gap-3 transition group">
+          <div class="w-8 h-8 rounded-xl bg-brand-red text-white flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-video text-xs"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-display font-bold text-xs">Enviar Denúncia ou Vídeo</p>
+            <p class="text-[10px] opacity-80 truncate">Acidente, reclamação de bairro ou flagrante</p>
+          </div>
+        </button>
+
+        <button onclick="contactReporter('Jonas Deison', 'Sobral e Região')" class="w-full p-2 rounded-xl theme-elevated border hover:border-emerald-500 text-left flex items-center justify-between text-xs transition">
+          <span><strong>Jonas Deison</strong> (Sobral e Região)</span>
+          <i class="fa-brands fa-whatsapp text-emerald-400"></i>
+        </button>
+
+        <button onclick="contactReporter('Wiiliam Brenner', 'Serra da Ibiapaba')" class="w-full p-2 rounded-xl theme-elevated border hover:border-emerald-500 text-left flex items-center justify-between text-xs transition">
+          <span><strong>Wiiliam Brenner</strong> (Ibiapaba)</span>
+          <i class="fa-brands fa-whatsapp text-emerald-400"></i>
+        </button>
+
+        <button onclick="contactReporter('Mikael', 'Sobral')" class="w-full p-2 rounded-xl theme-elevated border hover:border-emerald-500 text-left flex items-center justify-between text-xs transition">
+          <span><strong>Repórter Mikael</strong> (Sobral)</span>
+          <i class="fa-brands fa-whatsapp text-emerald-400"></i>
+        </button>
+
+        <button onclick="contactReporter('Duduzinho', 'Itapipoca')" class="w-full p-2 rounded-xl theme-elevated border hover:border-emerald-500 text-left flex items-center justify-between text-xs transition">
+          <span><strong>Duduzinho</strong> (Itapipoca)</span>
+          <i class="fa-brands fa-whatsapp text-emerald-400"></i>
+        </button>
+
+        <button onclick="contactReporter('Departamento Comercial', 'Anúncios e Parcerias')" class="w-full p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500 hover:text-slate-950 text-left flex items-center justify-between text-xs font-bold transition">
+          <span><i class="fa-solid fa-chart-line mr-1"></i> Falar com o Comercial</span>
+          <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Botão Principal Flutuante -->
+    <button onclick="toggleWhatsAppMenu()" aria-label="Abrir Plantão WhatsApp" class="group flex items-center gap-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-display font-extrabold text-xs px-4 py-3 rounded-full shadow-xl shadow-emerald-600/30 transition active:scale-95">
+      <i class="fa-brands fa-whatsapp text-xl"></i>
+      <span class="hidden sm:inline">Plantão / Enviar Pauta</span>
+      <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+    </button>
+  </div>
+
+  <!-- MODAL DE LEITURA RÁPIDA DE MATÉRIA + PLAYER DE ÁUDIO IA -->
+  <div id="article-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto">
+    <div class="theme-surface border rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl my-auto max-h-[92vh] flex flex-col">
+      
+      <!-- Barra Superior do Modal -->
+      <div class="px-4 py-3 border-b border-white/10 flex items-center justify-between gap-2 shrink-0">
+        <div class="flex items-center gap-2">
+          <span id="modal-category" class="bg-brand-red text-white text-[10px] font-display font-extrabold uppercase px-2.5 py-1 rounded-md">
+            Sobral
+          </span>
+          <span id="modal-time" class="text-xs theme-text-muted">Há 18 min</span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="changeModalFontSize(-1)" title="Diminuir fonte" class="w-8 h-8 rounded-lg theme-elevated border text-xs font-bold">A-</button>
+          <button onclick="changeModalFontSize(1)" title="Aumentar fonte" class="w-8 h-8 rounded-lg theme-elevated border text-xs font-bold">A+</button>
+          <button onclick="closeArticleModal()" class="w-8 h-8 rounded-lg bg-red-500/15 text-red-400 hover:bg-brand-red hover:text-white flex items-center justify-center transition">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Corpo Rolável da Matéria -->
+      <div class="p-4 sm:p-6 overflow-y-auto space-y-4">
+        <h2 id="modal-title" class="font-display font-extrabold text-xl sm:text-2xl leading-tight">
+          Título da Reportagem
+        </h2>
+
+        <div class="flex items-center justify-between text-xs theme-text-muted pb-2 border-b border-white/10">
+          <span id="modal-author">Por Redação Sobral Online</span>
+          <span><i class="fa-regular fa-clock mr-1"></i> Leitura: 2 min</span>
+        </div>
+
+        <!-- PLAYER DE ÁUDIO IA ("OUVIR NOTÍCIA") -->
+        <div class="p-3.5 rounded-2xl theme-elevated border border-brand-red/30 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <button id="audio-play-btn" onclick="toggleAudioPlayback()" class="w-10 h-10 rounded-xl bg-brand-red hover:bg-brand-crimson text-white flex items-center justify-center shrink-0 shadow">
+              <i id="audio-play-icon" class="fa-solid fa-play text-xs"></i>
+            </button>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-display font-bold">Ouvir Reportagem (Narração IA)</span>
+                <span id="audio-status-tag" class="text-[10px] bg-brand-red/20 text-red-400 px-2 py-0.5 rounded font-semibold">Pronto</span>
+              </div>
+              <p class="text-[11px] theme-text-muted">Ideal para ouvir no trânsito ou trabalhando</p>
+            </div>
+          </div>
+
+          <!-- Ondas sonoras animadas -->
+          <div id="audio-waves" class="flex items-end gap-1 h-5 opacity-40">
+            <span class="w-1 h-3 bg-brand-red rounded-full wave-bar"></span>
+            <span class="w-1 h-5 bg-brand-red rounded-full wave-bar"></span>
+            <span class="w-1 h-2.5 bg-brand-red rounded-full wave-bar"></span>
+            <span class="w-1 h-4 bg-brand-red rounded-full wave-bar"></span>
+            <span class="w-1 h-3 bg-brand-red rounded-full wave-bar"></span>
+          </div>
+        </div>
+
+        <!-- Imagem da Matéria -->
+        <div class="rounded-2xl overflow-hidden max-h-72 bg-zinc-900">
+          <img id="modal-image" src="" alt="Imagem da matéria" class="w-full h-full object-cover">
+        </div>
+
+        <!-- Texto Completo da Matéria -->
+        <div id="modal-content" class="space-y-3 text-sm sm:text-base leading-relaxed">
+          <!-- Preenchido via JS -->
+        </div>
+      </div>
+
+      <!-- Rodapé do Modal (Compartilhamento Rápido) -->
+      <div class="px-4 py-3 border-t border-white/10 flex items-center justify-between gap-3 shrink-0 theme-elevated">
+        <span class="text-xs font-semibold theme-text-muted">Compartilhar matéria:</span>
+        <div class="flex items-center gap-2">
+          <button onclick="shareCurrentArticle('WhatsApp')" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-display font-bold flex items-center gap-1.5 transition">
+            <i class="fa-brands fa-whatsapp"></i> Enviar no WhatsApp
+          </button>
+          <button onclick="copyArticleLink()" class="px-3 py-2 rounded-xl theme-surface border text-xs font-semibold hover:border-brand-red transition">
+            <i class="fa-solid fa-link mr-1"></i> Copiar Link
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL DE NOTIFICAÇÕES & ALERTAS -->
+  <div id="alerts-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+    <div class="theme-surface border rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
+      <button onclick="closeAlertsModal()" class="absolute top-4 right-4 w-8 h-8 rounded-lg theme-elevated border flex items-center justify-center text-xs">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="w-12 h-12 rounded-2xl bg-brand-red/15 border border-brand-red/30 text-brand-red flex items-center justify-center text-xl mb-4">
+        <i class="fa-solid fa-bell"></i>
+      </div>
+
+      <h3 class="font-display font-extrabold text-lg mb-1">Alertas de Plantão • Sobral Online</h3>
+      <p class="text-xs theme-text-muted mb-4">
+        Seja avisado no celular ou e-mail assim que sair uma reportagem urgente ou nova lista de empregos na sua cidade.
+      </p>
+
+      <form onsubmit="handleAlertSubscription(event)" class="space-y-3">
+        <div>
+          <label class="block text-[11px] font-bold uppercase mb-1">Seu Nome</label>
+          <input type="text" required placeholder="Ex: Carlos Eduardo" class="w-full px-3.5 py-2.5 rounded-xl theme-elevated border text-xs focus:outline-none focus:border-brand-red">
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold uppercase mb-1">WhatsApp ou E-mail</label>
+          <input type="text" required placeholder="(88) 99999-0000 ou seu@email.com" class="w-full px-3.5 py-2.5 rounded-xl theme-elevated border text-xs focus:outline-none focus:border-brand-red">
+        </div>
+        <div class="pt-1">
+          <label class="block text-[11px] font-bold uppercase mb-2">Quais alertas deseja receber?</label>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <label class="flex items-center gap-2 p-2 rounded-xl theme-elevated border cursor-pointer">
+              <input type="checkbox" checked class="accent-brand-red"> Plantão Sobral
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-xl theme-elevated border cursor-pointer">
+              <input type="checkbox" checked class="accent-brand-red"> Vagas de Emprego
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-xl theme-elevated border cursor-pointer">
+              <input type="checkbox" class="accent-brand-red"> Serra da Ibiapaba
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-xl theme-elevated border cursor-pointer">
+              <input type="checkbox" class="accent-brand-red"> Itapipoca
+            </label>
+          </div>
+        </div>
+        <button type="submit" class="w-full py-3 rounded-xl bg-brand-red hover:bg-brand-crimson text-white font-display font-bold text-xs shadow-lg shadow-red-600/30 transition">
+          Ativar Notificações Gratuitas
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL DE TRANSMISSÃO AO VIVO -->
+  <div id="live-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+    <div class="theme-surface border rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl">
+      <div class="bg-brand-red px-4 py-3 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2 text-xs font-display font-extrabold uppercase">
+          <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+          Plantão Ao Vivo • Sobral Online TV
+        </div>
+        <button onclick="closeLiveModal()" class="text-white/90 hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="p-5 text-center space-y-4">
+        <div class="aspect-video rounded-2xl bg-zinc-950 border border-white/10 flex flex-col items-center justify-center p-6 relative overflow-hidden">
+          <div class="w-16 h-16 rounded-full bg-brand-red/20 border border-brand-red flex items-center justify-center text-brand-red text-2xl mb-3 animate-pulse">
+            <i class="fa-solid fa-tower-broadcast"></i>
+          </div>
+          <h4 class="font-display font-bold text-white text-base">Integração Direta com Instagram Live / YouTube</h4>
+          <p class="text-xs text-zinc-400 max-w-sm mt-1">
+            Quando o Jonas Deison ou qualquer repórter iniciar uma Live, o leitor pode assistir diretamente dentro do portal sem sair da página.
+          </p>
+        </div>
+        <button onclick="closeLiveModal()" class="w-full py-2.5 rounded-xl theme-elevated border text-xs font-display font-bold">
+          Fechar Prévia
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT COMPLETO E FUNCIONAL -->
+  <script>
+    // Banco de Dados de Reportagens (Inclui as matérias dos prints + notícias regionais de Sobral, Ibiapaba e Itapipoca)
+    const articlesData = [
+      {
+        id: 1,
+        title: "Diretor Gerald Thomas grava vídeo na UTI e tranquiliza fãs sobre internação",
+        category: "Sobral",
+        regionBadge: "Notícias • Destaque",
+        author: "Redação Sobral Online",
+        time: "Há 18 min",
+        image: "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=1000&q=80",
+        summary: "Dramaturgo compartilhou atualização direta do hospital explicando evolução clínica e agradeceu mensagens de apoio recebidas nas últimas horas.",
+        content: [
+          "O diretor e dramaturgo Gerald Thomas utilizou suas redes sociais diretamente da Unidade de Terapia Intensiva (UTI) para gravar um vídeo tranquilizando admiradores e colegas de profissão sobre seu estado de saúde.",
+          "No registro, que rapidamente repercutiu nos principais portais do país e entre leitores do Sobral Online, ele explicou os procedimentos médicos realizados e destacou que a recuperação segue evoluindo de maneira positiva sob acompanhamento constante da equipe médica.",
+          "No novo portal Sobral Online, matérias de grande repercussão nacional e regional carregam instantaneamente no celular, sem que botões flutuantes ou banners desconfigurados cortem o título da notícia."
+        ]
+      },
+      {
+        id: 2,
+        title: "Relembre as apresentações mais marcantes da história do Super Bowl",
+        category: "Eventos",
+        regionBadge: "Entretenimento",
+        author: "Editoria de Cultura",
+        time: "Há 42 min",
+        image: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=900&q=80",
+        summary: "De Michael Jackson a Lady Gaga: confira os shows de intervalo que pararam o planeta e bateram recordes históricos de audiência.",
+        content: [
+          "O show do intervalo do Super Bowl consolidou-se nas últimas décadas como o maior palco da música pop mundial, reunindo performances icônicas como Michael Jackson em 1993, Prince sob chuva torrencial em 2007 e Lady Gaga saltando do topo do estádio em 2017.",
+          "Além do espetáculo visual, as apresentações movimentam milhões de interações nas redes sociais em tempo real, servindo de referência para grandes transmissões e coberturas multimídia."
+        ]
+      },
+      {
+        id: 3,
+        title: "Batalha judicial entre moradora e condomínio define rumo de ciclovia",
+        category: "Política",
+        regionBadge: "Justiça & Urbano",
+        author: "Repórter Jonas Deison",
+        time: "Há 1 hora",
+        image: "https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=800&q=80",
+        summary: "Impasse sobre faixa exclusiva para ciclistas mobilizou moradores, síndicos e órgãos de trânsito em disputa judicial acompanhada de perto.",
+        content: [
+          "Uma disputa judicial envolvendo uma moradora e a administração de um condomínio trouxe novos capítulos para o debate sobre mobilidade urbana e o traçado de ciclovias em áreas residenciais de grande fluxo.",
+          "A decisão judicial analisa o equilíbrio entre o direito de ir e vir, as normas técnicas de engenharia de tráfego e a segurança de pedestres e ciclistas que utilizam o corredor diariamente."
+        ]
+      },
+      {
+        id: 4,
+        title: "Água mineral chega a Banabuiú sob escolta policial após ameaças",
+        category: "Polícia",
+        regionBadge: "Polícia • Ceará",
+        author: "Plantão Policial",
+        time: "Há 2 horas",
+        image: "https://images.unsplash.com/photo-1541888946425-d09bb18086f6?auto=format&fit=crop&w=800&q=80",
+        summary: "Operação de segurança garantiu o abastecimento de comerciantes e moradores após denúncias de coação na distribuição local.",
+        content: [
+          "Caminhões carregados com galões de água mineral chegaram ao município de Banabuiú sob forte escolta das forças de segurança do Ceará, garantindo a normalidade do fornecimento para a população.",
+          "A medida preventiva foi adotada após relatos de ameaças contra distribuidores da região. A Polícia Militar reforçou o patrulhamento ostensivo para assegurar que os pontos comerciais funcionem sem interrupções."
+        ]
+      },
+      {
+        id: 5,
+        title: "Prefeitura e órgãos de trânsito anunciam pacote de melhorias viárias nos bairros de Sobral",
+        category: "Sobral",
+        regionBadge: "Sobral • Cidade",
+        author: "Repórter Mikael",
+        time: "Há 2 horas",
+        image: "https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=800&q=80",
+        summary: "Cronograma inclui recapeamento asfáltico, nova iluminação em LED e reforço na sinalização próxima a escolas e hospitais.",
+        content: [
+          "Equipes técnicas iniciaram nesta semana uma nova frente de requalificação viária contemplando importantes corredores de tráfego nos bairros de Sobral.",
+          "Segundo o levantamento acompanhado pela reportagem do Sobral Online, as obras priorizam cruzamentos de grande movimento e paradas de transporte coletivo."
+        ]
+      },
+      {
+        id: 6,
+        title: "Produtores da Serra da Ibiapaba comemoram alta no escoamento de hortifrutigranjeiros",
+        category: "Ibiapaba",
+        regionBadge: "Serra da Ibiapaba",
+        author: "Repórter Wiiliam Brenner",
+        time: "Há 3 horas",
+        image: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80",
+        summary: "Municípios como Tianguá, Ubajara e Guaraciaba do Norte registram crescimento nas vendas e geração de novos postos no campo.",
+        content: [
+          "O polo agrícola da Serra da Ibiapaba segue fortalecendo sua posição estratégica no abastecimento do Ceará e estados vizinhos. Produtores rurais destacam a melhoria na logística de distribuição.",
+          "A cobertura regional do Sobral Online na Ibiapaba acompanha diariamente os impactos econômicos e as oportunidades para trabalhadores da região."
+        ]
+      },
+      {
+        id: 7,
+        title: "Itapipoca recebe reforço em ações de saúde preventiva e mutirão de exames especializados",
+        category: "Itapipoca",
+        regionBadge: "Itapipoca",
+        author: "Repórter Duduzinho",
+        time: "Há 4 horas",
+        image: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=800&q=80",
+        summary: "Atendimentos de oftalmologia e exames preventivos reduzem fila de espera para moradores da sede e distritos.",
+        content: [
+          "Centenas de moradores de Itapipoca participaram do mutirão de saúde focado em diagnósticos rápidos e consultas de oftalmologia e clínica geral.",
+          "A iniciativa busca agilizar o atendimento de pacientes que aguardavam encaminhamento na rede pública municipal."
+        ]
+      },
+      {
+        id: 8,
+        title: "1ª Edição do Sobral Online Run movimenta atletas de toda a Zona Norte; veja como garantir seu kit",
+        category: "Eventos",
+        regionBadge: "Esporte • Sobral",
+        author: "Jonas Deison",
+        time: "Destaque Oficial",
+        image: "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=800&q=80",
+        summary: "Corrida oficial do portal celebra a integração esportiva na região com kit exclusivo contendo camisa tecnológica, boné, medalha e sacochila.",
+        content: [
+          "A 1ª Edição do Sobral Online Run já é um dos eventos esportivos mais aguardados do calendário da Zona Norte do Ceará, reunindo corredores amadores, assessorias esportivas e famílias.",
+          "Os inscritos recebem um kit oficial completo desenvolvido nas cores da marca, além de estrutura de hidratação, cronometragem eletrônica e premiação por categorias."
+        ]
+      }
+    ];
+
+    // Banco de Dados de Vagas de Emprego (Para as 3 abas do Print: Lista de Hoje, Vagas Recentes, Vagas por Região)
+    const jobsData = {
+      hoje: [
+        { title: "Auxiliar Administrativo & Faturamento", company: "Distribuidora Zona Norte", city: "Sobral - CE", type: "CLT • Presencial", badge: "Nova Hoje" },
+        { title: "Técnico em Eletrotécnica / Manutenção", company: "Polo Industrial Sobral", city: "Sobral - CE", type: "CLT + Benefícios", badge: "Urgente" },
+        { title: "Consultor(a) de Vendas Internas", company: "Rede Varejista Centro", city: "Sobral - CE", type: "Fixo + Comissão", badge: "Nova Hoje" },
+        { title: "Motorista Entregador (Cat. B ou D)", company: "Logística Ceará Norte", city: "Sobral / Tianguá", type: "CLT + Diárias", badge: "3 Vagas" },
+        { title: "Atendente de Farmácia", company: "Rede Saúde Popular", city: "Itapipoca - CE", type: "Escala 6x1", badge: "Nova Hoje" },
+        { title: "Analista de Suporte Técnico TI", company: "Provedor Fibra Regional", city: "Sobral - CE", type: "CLT • Plano Saúde", badge: "Nova Hoje" }
+      ],
+      recentes: [
+        { title: "Operador(a) de Caixa", company: "Supermercado Líder", city: "Sobral - CE", type: "CLT", badge: "Ontem" },
+        { title: "Auxiliar de Estoque e Expedição", company: "Atacadista Ibiapaba", city: "Tianguá - CE", type: "CLT", badge: "Há 2 dias" },
+        { title: "Recepcionista de Clínica Médica", company: "Centro Médico Sobral", city: "Sobral - CE", type: "Comercial", badge: "Há 2 dias" }
+      ],
+      regiao: [
+        { title: "Sobral e Distritos (18 vagas abertas)", company: "Comércio, Indústria e Serviços", city: "Polo Sobral", type: "Diversas áreas", badge: "Sobral" },
+        { title: "Serra da Ibiapaba (9 vagas abertas)", company: "Tianguá, Ubajara e Viçosa", city: "Polo Ibiapaba", type: "Agronegócio e Varejo", badge: "Ibiapaba" },
+        { title: "Itapipoca e Região (7 vagas abertas)", company: "Centro e Litoral", city: "Polo Itapipoca", type: "Serviços e Saúde", badge: "Itapipoca" }
+      ]
+    };
+
+    let currentCategory = "Todas";
+    let currentSearchQuery = "";
+    let currentModalFontSize = 15;
+    let isAudioPlaying = false;
+    let audioInterval = null;
+
+    // Renderizar Feed de Notícias
+    function renderNewsFeed() {
+      const container = document.getElementById('news-feed-container');
+      const statusBar = document.getElementById('filter-status-bar');
+      const statusLabel = document.getElementById('filter-status-label');
+      const countBadge = document.getElementById('filter-count-badge');
+      const totalCounter = document.getElementById('feed-total-counter');
+
+      const filtered = articlesData.filter(article => {
+        const matchesCategory = currentCategory === 'Todas' || article.category.toLowerCase() === currentCategory.toLowerCase();
+        const matchesQuery = !currentSearchQuery || 
+          article.title.toLowerCase().includes(currentSearchQuery.toLowerCase()) ||
+          article.summary.toLowerCase().includes(currentSearchQuery.toLowerCase()) ||
+          article.category.toLowerCase().includes(currentSearchQuery.toLowerCase());
+        return matchesCategory && matchesQuery;
+      });
+
+      // Atualiza barra de status de filtro
+      if (currentCategory !== 'Todas' || currentSearchQuery !== '') {
+        statusBar.classList.remove('hidden');
+        statusLabel.textContent = currentSearchQuery ? `"${currentSearchQuery}" em ${currentCategory}` : currentCategory;
+        countBadge.textContent = `${filtered.length} matéria(s)`;
+      } else {
+        statusBar.classList.add('hidden');
+      }
+
+      totalCounter.textContent = `${filtered.length} reportagens exibidas`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="theme-surface border rounded-3xl p-8 text-center">
+            <i class="fa-solid fa-magnifying-glass text-2xl text-brand-red mb-2"></i>
+            <h3 class="font-display font-bold text-base">Nenhuma reportagem encontrada</h3>
+            <p class="text-xs theme-text-muted mt-1 mb-4">Tente buscar por outro termo ou limpar os filtros selecionados.</p>
+            <button onclick="resetAllFilters()" class="px-4 py-2 rounded-xl bg-brand-red text-white text-xs font-display font-bold">
+              Ver Todas as Notícias
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(item => `
+        <article onclick="openArticleModal(${item.id})" class="news-card cursor-pointer theme-surface border rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 shadow-sm">
+          <div class="w-full sm:w-44 h-44 sm:h-28 rounded-xl overflow-hidden bg-zinc-900 shrink-0 relative">
+            <img src="${item.image}" alt="${item.title}" onerror="this.src='https://placehold.co/400x260/1E1E24/FFFFFF?text=Sobral+Online'" class="w-full h-full object-cover">
+            <span class="absolute top-2 left-2 bg-black/75 backdrop-blur-sm text-white text-[9px] font-display font-extrabold uppercase px-2 py-0.5 rounded">
+              ${item.regionBadge}
+            </span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 text-[11px] theme-text-muted mb-1">
+              <span class="font-semibold text-brand-red">${item.author}</span>
+              <span>•</span>
+              <span>${item.time}</span>
+            </div>
+            <h3 class="font-display font-extrabold text-sm sm:text-base leading-snug mb-1.5 hover:text-brand-red transition-colors">
+              ${item.title}
+            </h3>
+            <p class="text-xs theme-text-muted line-clamp-2 mb-2">
+              ${item.summary}
+            </p>
+            <div class="flex items-center gap-3 text-[11px] font-bold text-brand-red">
+              <span>Ler matéria completa →</span>
+              <span class="theme-text-muted font-normal flex items-center gap-1"><i class="fa-solid fa-headphones"></i> Áudio IA</span>
+            </div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    // Filtrar por Categoria (Chips do Header)
+    function filterByCategory(category) {
+      currentCategory = category;
+      document.querySelectorAll('.cat-chip').forEach(btn => {
+        if (btn.getAttribute('data-cat') === category) {
+          btn.className = "cat-chip snap-start shrink-0 px-3.5 py-1.5 rounded-full text-xs font-display font-bold transition bg-brand-red text-white shadow-sm";
+        } else {
+          btn.className = "cat-chip snap-start shrink-0 px-3.5 py-1.5 rounded-full text-xs font-display font-semibold theme-elevated border hover:border-brand-red transition";
+        }
+      });
+      renderNewsFeed();
+    }
+
+    // Busca em Tempo Real
+    function handleSearchInput(val) {
+      currentSearchQuery = val.trim();
+      const desktopInput = document.getElementById('desktop-search');
+      const mobileInput = document.getElementById('mobile-search');
+      const clearBtn = document.getElementById('clear-desktop-search');
+
+      if (desktopInput && desktopInput.value !== val) desktopInput.value = val;
+      if (mobileInput && mobileInput.value !== val) mobileInput.value = val;
+
+      if (clearBtn) {
+        clearBtn.classList.toggle('hidden', currentSearchQuery === '');
+      }
+      renderNewsFeed();
+    }
+
+    function resetAllFilters() {
+      currentSearchQuery = "";
+      handleSearchInput("");
+      filterByCategory("Todas");
+    }
+
+    function toggleMobileSearch() {
+      const bar = document.getElementById('mobile-search-bar');
+      bar.classList.toggle('hidden');
+      if (!bar.classList.contains('hidden')) {
+        document.getElementById('mobile-search').focus();
+      }
+    }
+
+    // Controle das Abas da Central de Vagas
+    function switchJobTab(tabKey) {
+      ['hoje', 'recentes', 'regiao'].forEach(key => {
+        const btn = document.getElementById('job-tab-' + key);
+        if (key === tabKey) {
+          btn.className = "job-tab-btn px-3.5 py-2 rounded-xl text-xs font-display font-bold bg-emerald-600 text-white shadow transition";
+        } else {
+          btn.className = "job-tab-btn px-3.5 py-2 rounded-xl text-xs font-display font-semibold theme-text-muted hover:text-white transition";
+        }
+      });
+
+      const grid = document.getElementById('jobs-grid');
+      const items = jobsData[tabKey] || [];
+      grid.innerHTML = items.map(job => `
+        <div class="theme-elevated border rounded-2xl p-4 flex flex-col justify-between gap-3 hover:border-emerald-500/50 transition">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-1.5">
+              <span class="text-[10px] font-display font-extrabold uppercase px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
+                ${job.badge}
+              </span>
+              <span class="text-[11px] theme-text-muted font-medium">
+                <i class="fa-solid fa-location-dot text-brand-red mr-1"></i>${job.city}
+              </span>
+            </div>
+            <h3 class="font-display font-bold text-sm leading-snug">${job.title}</h3>
+            <p class="text-xs theme-text-muted mt-0.5">${job.company} • ${job.type}</p>
+          </div>
+          <button onclick="showToast('Candidatura Rápida', 'Encaminhando currículo para: ${job.title} (${job.city})')" class="w-full py-2 px-3 rounded-xl theme-surface border hover:border-emerald-500 text-xs font-display font-bold flex items-center justify-between transition">
+            <span>Ver Requisitos / Enviar Currículo</span>
+            <i class="fa-solid fa-chevron-right text-emerald-400 text-[10px]"></i>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    // Modal de Leitura de Artigo + Áudio IA
+    function openArticleModal(articleId) {
+      const article = articlesData.find(a => a.id === articleId) || articlesData[0];
+      document.getElementById('modal-category').textContent = article.regionBadge;
+      document.getElementById('modal-time').textContent = article.time;
+      document.getElementById('modal-title').textContent = article.title;
+      document.getElementById('modal-author').textContent = "Por " + article.author;
+      document.getElementById('modal-image').src = article.image;
+
+      const contentEl = document.getElementById('modal-content');
+      contentEl.style.fontSize = currentModalFontSize + "px";
+      contentEl.innerHTML = article.content.map(p => `<p>${p}</p>`).join('');
+
+      stopAudioPlayback();
+
+      const modal = document.getElementById('article-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeArticleModal() {
+      stopAudioPlayback();
+      const modal = document.getElementById('article-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function changeModalFontSize(delta) {
+      currentModalFontSize = Math.min(20, Math.max(13, currentModalFontSize + delta));
+      document.getElementById('modal-content').style.fontSize = currentModalFontSize + "px";
+    }
+
+    // Simulação + Web Speech API para "Ouvir Notícia (Áudio IA)"
+    function toggleAudioPlayback() {
+      const icon = document.getElementById('audio-play-icon');
+      const statusTag = document.getElementById('audio-status-tag');
+      const waves = document.getElementById('audio-waves');
+
+      if (!isAudioPlaying) {
+        isAudioPlaying = true;
+        icon.className = "fa-solid fa-pause text-xs";
+        statusTag.textContent = "Narrando...";
+        waves.classList.remove('opacity-40');
+        waves.querySelectorAll('.wave-bar').forEach((bar, idx) => {
+          bar.style.animation = `soundwave ${0.45 + idx * 0.12}s ease-in-out infinite alternate`;
+        });
+
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const textToRead = document.getElementById('modal-title').textContent + ". " + document.getElementById('modal-content').innerText;
+          const utterance = new SpeechSynthesisUtterance(textToRead);
+          utterance.lang = 'pt-BR';
+          utterance.onend = () => stopAudioPlayback();
+          window.speechSynthesis.speak(utterance);
+        }
+      } else {
+        stopAudioPlayback();
+      }
+    }
+
+    function stopAudioPlayback() {
+      isAudioPlaying = false;
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      const icon = document.getElementById('audio-play-icon');
+      const statusTag = document.getElementById('audio-status-tag');
+      const waves = document.getElementById('audio-waves');
+      if (icon) icon.className = "fa-solid fa-play text-xs";
+      if (statusTag) statusTag.textContent = "Pronto";
+      if (waves) {
+        waves.classList.add('opacity-40');
+        waves.querySelectorAll('.wave-bar').forEach(bar => bar.style.animation = 'none');
+      }
+    }
+
+    // Compartilhamento e Clipboard
+    function shareCurrentArticle(platform) {
+      const title = document.getElementById('modal-title').textContent;
+      showToast(`Compartilhar no ${platform}`, `Link preparado: "${title}"`);
+    }
+
+    function copyArticleLink() {
+      const dummy = document.createElement('textarea');
+      dummy.value = window.location.href;
+      document.body.appendChild(dummy);
+      dummy.select();
+      document.execCommand('copy');
+      document.body.removeChild(dummy);
+      showToast('Link Copiado', 'URL da reportagem copiada para a área de transferência.');
+    }
+
+    // Alternar Tema Dark Editorial / Light Clean
+    function toggleTheme() {
+      const htmlEl = document.documentElement;
+      const icon = document.getElementById('theme-icon');
+      htmlEl.classList.toggle('dark');
+      if (htmlEl.classList.contains('dark')) {
+        icon.className = "fa-solid fa-sun text-amber-400";
+        showToast('Modo Dark Editorial', 'Visual de alto contraste ativado.');
+      } else {
+        icon.className = "fa-solid fa-moon text-slate-700";
+        showToast('Modo Claro Clean', 'Visual diurno de leitura ativado.');
+      }
+    }
+
+    // Modais de Alerta, Live e Menu Flutuante WhatsApp
+    function openAlertsModal() {
+      const m = document.getElementById('alerts-modal');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+    }
+    function closeAlertsModal() {
+      const m = document.getElementById('alerts-modal');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+    function handleAlertSubscription(e) {
+      e.preventDefault();
+      closeAlertsModal();
+      showToast('Alertas Ativados!', 'Você receberá nossas matérias urgentes e vagas em primeira mão.');
+    }
+
+    function openLiveModal() {
+      const m = document.getElementById('live-modal');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+    }
+    function closeLiveModal() {
+      const m = document.getElementById('live-modal');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+
+    function toggleWhatsAppMenu() {
+      const menu = document.getElementById('whatsapp-quick-menu');
+      menu.classList.toggle('hidden');
+    }
+
+    function contactReporter(name, region) {
+      document.getElementById('whatsapp-quick-menu').classList.add('hidden');
+      showToast(`WhatsApp • ${name}`, `Abrindo conversa direta com a praça de ${region}...`);
+    }
+
+    function handleNewsletterSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('newsletter-email').value;
+      const region = document.getElementById('newsletter-region').value;
+      document.getElementById('newsletter-email').value = '';
+      showToast('Inscrição Confirmada!', `${email} cadastrado para receber o resumo de ${region}.`);
+    }
+
+    function scrollToSection(id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Sistema de Toast Global
+    let toastTimer;
+    function showToast(title, message) {
+      const toast = document.getElementById('global-toast');
+      document.getElementById('toast-title').textContent = title;
+      document.getElementById('toast-message').textContent = message;
+
+      toast.classList.remove('opacity-0', '-translate-y-4');
+      toast.classList.add('opacity-100', 'translate-y-0');
+
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', '-translate-y-4');
+      }, 3000);
+    }
+
+    // Inicialização na carga da página
+    window.addEventListener('DOMContentLoaded', () => {
+      switchJobTab('hoje');
+      renderNewsFeed();
+    });
+  </script>
+</body>
+</html>
